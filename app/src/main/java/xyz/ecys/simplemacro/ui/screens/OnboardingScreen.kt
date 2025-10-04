@@ -37,7 +37,7 @@ fun OnboardingScreen(
             TopAppBar(
                 title = { Text("Complete Your Profile", fontWeight = FontWeight.Bold) },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = MaterialTheme.colorScheme.background
                 )
             )
         }
