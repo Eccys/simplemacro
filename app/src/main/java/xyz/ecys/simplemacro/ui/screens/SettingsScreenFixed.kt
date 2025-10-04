@@ -50,6 +50,11 @@ fun SettingsScreenFixed(
     var fatGoal by remember { mutableStateOf("") }
     var isDarkMode by remember { mutableStateOf(true) }
     
+    // Body fat measurements (in mm)
+    var chestMm by remember { mutableStateOf("") }
+    var abdomenMm by remember { mutableStateOf("") }
+    var thighMm by remember { mutableStateOf("") }
+    
     // Auth modal state
     var showAuthModal by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
@@ -259,7 +264,11 @@ fun SettingsScreenFixed(
 
                     OutlinedTextField(
                         value = age,
-                        onValueChange = { age = it },
+                        onValueChange = { newValue ->
+                            if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
+                                age = newValue
+                            }
+                        },
                         label = { Text("Age") },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -312,10 +321,14 @@ fun SettingsScreenFixed(
 
                     OutlinedTextField(
                         value = weightLbs,
-                        onValueChange = { weightLbs = it },
+                        onValueChange = { newValue ->
+                            if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                weightLbs = newValue
+                            }
+                        },
                         label = { Text("Weight (lbs)") },
                         modifier = Modifier.fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         shape = RoundedCornerShape(12.dp)
                     )
 
@@ -342,12 +355,142 @@ fun SettingsScreenFixed(
                         )
                         OutlinedTextField(
                             value = heightInches,
-                            onValueChange = { heightInches = it },
-                            label = { Text("Inches") },
+                            onValueChange = { newValue ->
+                                if (newValue.isEmpty() || (newValue.all { it.isDigit() } && newValue.toIntOrNull()?.let { it <= 11 } == true)) {
+                                    heightInches = newValue
+                                }
+                            },
+                            label = { Text("Inches (0-11)") },
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             shape = RoundedCornerShape(12.dp)
                         )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Jackson-Pollock 3-Site Body Fat Calculator
+            ElevatedCard(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+                shape = RoundedCornerShape(20.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp)
+                ) {
+                    Text(
+                        text = "Body Fat Calculator",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 4.dp)
+                    )
+                    Text(
+                        text = "Jackson-Pollock 3-Site (Chest, Abdomen, Thigh)",
+                        fontSize = 12.sp,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 16.dp)
+                    )
+
+                    OutlinedTextField(
+                        value = chestMm,
+                        onValueChange = { newValue ->
+                            if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                chestMm = newValue
+                            }
+                        },
+                        label = { Text("Chest (mm)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedTextField(
+                        value = abdomenMm,
+                        onValueChange = { newValue ->
+                            if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                abdomenMm = newValue
+                            }
+                        },
+                        label = { Text("Abdomen (mm)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedTextField(
+                        value = thighMm,
+                        onValueChange = { newValue ->
+                            if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                thighMm = newValue
+                            }
+                        },
+                        label = { Text("Thigh (mm)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    // Calculate body fat percentage
+                    val chest = chestMm.toFloatOrNull()
+                    val abdomen = abdomenMm.toFloatOrNull()
+                    val thigh = thighMm.toFloatOrNull()
+                    val userAge = age.toIntOrNull()
+
+                    if (chest != null && abdomen != null && thigh != null && userAge != null) {
+                        val sum = chest + abdomen + thigh
+                        // Jackson-Pollock 3-site formula for men
+                        val bodyDensity = 1.10938 - (0.0008267 * sum) + (0.0000016 * sum * sum) - (0.0002574 * userAge)
+                        val bodyFatPercent = (495 / bodyDensity) - 450
+
+                        Spacer(modifier = Modifier.height(16.dp))
+                        
+                        ElevatedCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer
+                            ),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Body Fat Percentage",
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                                Text(
+                                    text = String.format("%.1f%%", bodyFatPercent),
+                                    fontSize = 32.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                                val category = when {
+                                    bodyFatPercent < 6 -> "Essential Fat"
+                                    bodyFatPercent < 14 -> "Athletes"
+                                    bodyFatPercent < 18 -> "Fitness"
+                                    bodyFatPercent < 25 -> "Average"
+                                    else -> "Obese"
+                                }
+                                Text(
+                                    text = category,
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    fontWeight = FontWeight.Medium
+                                )
+                            }
+                        }
                     }
                 }
             }

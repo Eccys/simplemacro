@@ -94,7 +94,11 @@ fun OnboardingScreen(
 
                     OutlinedTextField(
                         value = age,
-                        onValueChange = { age = it },
+                        onValueChange = { newValue ->
+                            if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
+                                age = newValue
+                            }
+                        },
                         label = { Text("Age") },
                         modifier = Modifier.fillMaxWidth(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -147,10 +151,14 @@ fun OnboardingScreen(
 
                     OutlinedTextField(
                         value = weightLbs,
-                        onValueChange = { weightLbs = it },
+                        onValueChange = { newValue ->
+                            if (newValue.isEmpty() || newValue.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                weightLbs = newValue
+                            }
+                        },
                         label = { Text("Weight (lbs)") },
                         modifier = Modifier.fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         shape = RoundedCornerShape(12.dp)
                     )
 
@@ -177,8 +185,12 @@ fun OnboardingScreen(
                         )
                         OutlinedTextField(
                             value = heightInches,
-                            onValueChange = { heightInches = it },
-                            label = { Text("Inches") },
+                            onValueChange = { newValue ->
+                                if (newValue.isEmpty() || (newValue.all { it.isDigit() } && newValue.toIntOrNull()?.let { it <= 11 } == true)) {
+                                    heightInches = newValue
+                                }
+                            },
+                            label = { Text("Inches (0-11)") },
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             shape = RoundedCornerShape(12.dp)
