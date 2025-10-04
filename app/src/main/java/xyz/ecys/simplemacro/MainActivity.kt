@@ -152,6 +152,7 @@ fun SimpleMacroApp(
             
             SettingsScreenFixed(
                 viewModel = settingsViewModel,
+                authViewModel = authViewModel,
                 userId = userId,
                 onNavigateBack = {
                     navController.popBackStack()
