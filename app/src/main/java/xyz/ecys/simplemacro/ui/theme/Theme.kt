@@ -55,7 +55,7 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun SimpleMacroTheme(
     darkTheme: Boolean = true, // Default to dark mode
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false, // Disabled for monochrome theme
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
