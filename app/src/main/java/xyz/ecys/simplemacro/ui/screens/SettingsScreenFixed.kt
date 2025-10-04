@@ -3,20 +3,24 @@ package xyz.ecys.simplemacro.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.DarkMode
-import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 import xyz.ecys.simplemacro.data.model.MacroEntry
 import xyz.ecys.simplemacro.ui.viewmodel.SettingsViewModel
 
@@ -40,6 +44,11 @@ fun SettingsScreenFixed(
     var proteinGoal by remember { mutableStateOf("") }
     var fatGoal by remember { mutableStateOf("") }
     var isDarkMode by remember { mutableStateOf(true) }
+    
+    // Auth modal state
+    var showAuthModal by remember { mutableStateOf(false) }
+    val sheetState = rememberModalBottomSheetState()
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(userId) {
         viewModel.loadUser(userId)
@@ -150,8 +159,7 @@ fun SettingsScreenFixed(
                         Spacer(modifier = Modifier.height(18.dp))
                         Button(
                             onClick = {
-                                // Navigate to auth screen for sign-up
-                                onNavigateToAuth()
+                                showAuthModal = true
                             },
                             modifier = Modifier.fillMaxWidth(),
                             colors = ButtonDefaults.buttonColors(
@@ -424,12 +432,6 @@ fun SettingsScreenFixed(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
                     ) {
-                        Icon(
-                            imageVector = if (isDarkMode) Icons.Default.DarkMode else Icons.Default.LightMode,
-                            contentDescription = "Theme",
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(28.dp)
-                        )
                         Column {
                             Text(
                                 text = "Dark Mode",
@@ -505,6 +507,148 @@ fun SettingsScreenFixed(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+    
+    // Auth Modal Bottom Sheet
+    if (showAuthModal) {
+        ModalBottomSheet(
+            onDismissRequest = { showAuthModal = false },
+            sheetState = sheetState
+        ) {
+            AuthModalContent(
+                onDismiss = { 
+                    scope.launch { sheetState.hide() }.invokeOnCompletion {
+                        if (!sheetState.isVisible) {
+                            showAuthModal = false
+                        }
+                    }
+                }
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AuthModalContent(
+    onDismiss: () -> Unit
+) {
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var isSignUp by remember { mutableStateOf(true) }
+    var passwordVisible by remember { mutableStateOf(false) }
+    
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(24.dp)
+            .padding(bottom = 32.dp)
+    ) {
+        Text(
+            text = if (isSignUp) "Sign Up" else "Sign In",
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(bottom = 24.dp)
+        )
+        
+        // Email Field
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp)
+        )
+        
+        Spacer(modifier = Modifier.height(12.dp))
+        
+        // Password Field
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("Password") },
+            modifier = Modifier.fillMaxWidth(),
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+            trailingIcon = {
+                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                    Icon(
+                        imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                        contentDescription = if (passwordVisible) "Hide password" else "Show password"
+                    )
+                }
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(12.dp)
+        )
+        
+        Spacer(modifier = Modifier.height(20.dp))
+        
+        // Sign Up/Sign In Button
+        Button(
+            onClick = {
+                // TODO: Implement auth logic
+                onDismiss()
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(
+                text = if (isSignUp) "Sign Up" else "Sign In",
+                modifier = Modifier.padding(vertical = 8.dp),
+                fontSize = 16.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Continue with Google Button
+        OutlinedButton(
+            onClick = {
+                // TODO: Implement Google Sign-In
+            },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(12.dp)
+        ) {
+            Text(
+                text = "Continue with Google",
+                modifier = Modifier.padding(vertical = 8.dp),
+                fontSize = 16.sp
+            )
+        }
+        
+        Spacer(modifier = Modifier.height(20.dp))
+        
+        // Bottom Row: Forgot Password | Already have account?
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            TextButton(
+                onClick = {
+                    // TODO: Implement forgot password
+                }
+            ) {
+                Text(
+                    text = "Forgot password?",
+                    fontSize = 14.sp
+                )
+            }
+            
+            TextButton(
+                onClick = {
+                    isSignUp = !isSignUp
+                }
+            ) {
+                Text(
+                    text = if (isSignUp) "Already have an account?" else "Don't have an account?",
+                    fontSize = 14.sp
+                )
+            }
         }
     }
 }
