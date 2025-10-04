@@ -35,7 +35,8 @@ fun SettingsScreenFixed(
     userId: Long,
     onNavigateBack: () -> Unit,
     onLogout: () -> Unit,
-    onNavigateToAuth: () -> Unit = onLogout
+    onNavigateToAuth: () -> Unit = onLogout,
+    onAuthSuccess: (userId: Long) -> Unit = {}
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var name by remember { mutableStateOf("") }
@@ -529,13 +530,10 @@ fun SettingsScreenFixed(
                         }
                     }
                 },
-                onSuccess = { userId, needsOnboarding ->
+                onSuccess = { newUserId, needsOnboarding ->
                     showAuthModal = false
-                    if (needsOnboarding) {
-                        // User will go through onboarding
-                    }
-                    // Reload user data
-                    viewModel.loadUser(userId)
+                    // User is now logged in - navigate to home with new user ID
+                    onAuthSuccess(newUserId)
                 }
             )
         }
