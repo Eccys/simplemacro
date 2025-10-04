@@ -582,6 +582,7 @@ fun AuthModalContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
             .navigationBarsPadding()
             .imePadding()
             .padding(horizontal = 24.dp)
