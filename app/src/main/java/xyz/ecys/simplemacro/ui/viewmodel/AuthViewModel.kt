@@ -187,6 +187,39 @@ class AuthViewModel(
         }
     }
 
+    fun sendPasswordResetEmail(email: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            try {
+                if (email.isBlank()) {
+                    _authState.value = AuthState.Error("Email cannot be empty")
+                    return@launch
+                }
+
+                val result = firebaseAuth.sendPasswordResetEmail(email)
+                
+                result.onSuccess {
+                    _authState.value = AuthState.Idle
+                    // Password reset email sent successfully
+                }.onFailure { exception ->
+                    _authState.value = AuthState.Error(exception.message ?: "Failed to send reset email")
+                }
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(e.message ?: "Failed to send reset email")
+            }
+        }
+    }
+
+    fun sendEmailVerification() {
+        viewModelScope.launch {
+            try {
+                firebaseAuth.sendEmailVerification()
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(e.message ?: "Failed to send verification email")
+            }
+        }
+    }
+
     fun resetAuthState() {
         _authState.value = AuthState.Idle
     }

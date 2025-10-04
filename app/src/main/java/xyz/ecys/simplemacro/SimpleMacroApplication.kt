@@ -17,9 +17,8 @@ class SimpleMacroApplication : Application() {
         // Initialize Firebase
         FirebaseApp.initializeApp(this)
         
-        // Disable reCAPTCHA for development (REMOVE IN PRODUCTION)
-        val auth = FirebaseAuth.getInstance()
-        auth.firebaseAuthSettings.setAppVerificationDisabledForTesting(true)
+        // Note: reCAPTCHA is now enabled for production
+        // Make sure to configure App Check in Firebase Console
     }
     
     private val database by lazy { SimpleMacroDatabase.getDatabase(this) }

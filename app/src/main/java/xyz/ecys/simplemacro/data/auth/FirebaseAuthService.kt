@@ -52,4 +52,26 @@ class FirebaseAuthService {
     fun isSignedIn(): Boolean {
         return currentUser != null
     }
+
+    suspend fun sendPasswordResetEmail(email: String): Result<Unit> {
+        return try {
+            auth.sendPasswordResetEmail(email).await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun sendEmailVerification(): Result<Unit> {
+        return try {
+            currentUser?.sendEmailVerification()?.await()
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    fun isEmailVerified(): Boolean {
+        return currentUser?.isEmailVerified ?: false
+    }
 }
