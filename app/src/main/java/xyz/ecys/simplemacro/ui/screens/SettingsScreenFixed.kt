@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
+import androidx.compose.ui.draw.alpha
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,12 +23,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
 import xyz.ecys.simplemacro.data.model.MacroEntry
+import xyz.ecys.simplemacro.ui.viewmodel.AuthViewModel
+import xyz.ecys.simplemacro.ui.viewmodel.AuthState
 import xyz.ecys.simplemacro.ui.viewmodel.SettingsViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreenFixed(
     viewModel: SettingsViewModel,
+    authViewModel: AuthViewModel,
     userId: Long,
     onNavigateBack: () -> Unit,
     onLogout: () -> Unit,
@@ -517,12 +521,21 @@ fun SettingsScreenFixed(
             sheetState = sheetState
         ) {
             AuthModalContent(
+                authViewModel = authViewModel,
                 onDismiss = { 
                     scope.launch { sheetState.hide() }.invokeOnCompletion {
                         if (!sheetState.isVisible) {
                             showAuthModal = false
                         }
                     }
+                },
+                onSuccess = { userId, needsOnboarding ->
+                    showAuthModal = false
+                    if (needsOnboarding) {
+                        // User will go through onboarding
+                    }
+                    // Reload user data
+                    viewModel.loadUser(userId)
                 }
             )
         }
@@ -532,23 +545,60 @@ fun SettingsScreenFixed(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuthModalContent(
-    onDismiss: () -> Unit
+    authViewModel: AuthViewModel,
+    onDismiss: () -> Unit,
+    onSuccess: (userId: Long, needsOnboarding: Boolean) -> Unit
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var isSignUp by remember { mutableStateOf(true) }
     var passwordVisible by remember { mutableStateOf(false) }
+    var errorMessage by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
+    
+    val authState by authViewModel.authState.collectAsState()
+    
+    // Observe auth state
+    LaunchedEffect(authState) {
+        when (val state = authState) {
+            is AuthState.Success -> {
+                onSuccess(state.userId, state.needsOnboarding)
+                authViewModel.resetAuthState()
+            }
+            is AuthState.Error -> {
+                errorMessage = state.message
+                isLoading = false
+            }
+            is AuthState.Loading -> {
+                isLoading = true
+                errorMessage = ""
+            }
+            is AuthState.Idle -> {
+                isLoading = false
+            }
+        }
+    }
     
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(24.dp)
-            .padding(bottom = 32.dp)
+            .navigationBarsPadding()
+            .imePadding()
+            .padding(horizontal = 24.dp)
+            .padding(top = 24.dp, bottom = 48.dp)
     ) {
         Text(
             text = if (isSignUp) "Sign Up" else "Sign In",
             fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.Bold
+        )
+        
+        Spacer(modifier = Modifier.height(8.dp))
+        
+        Text(
+            text = "Make an account to save your progress and data",
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(bottom = 24.dp)
         )
         
@@ -585,23 +635,45 @@ fun AuthModalContent(
             shape = RoundedCornerShape(12.dp)
         )
         
+        // Error Message
+        if (errorMessage.isNotBlank()) {
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 14.sp,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        
         Spacer(modifier = Modifier.height(20.dp))
         
         // Sign Up/Sign In Button
         Button(
             onClick = {
-                // TODO: Implement auth logic
-                onDismiss()
+                if (isSignUp) {
+                    authViewModel.signUpWithEmail(email, password, email.substringBefore("@"))
+                } else {
+                    authViewModel.loginWithEmail(email, password)
+                }
             },
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
+            enabled = !isLoading && email.isNotBlank() && password.isNotBlank()
         ) {
-            Text(
-                text = if (isSignUp) "Sign Up" else "Sign In",
-                modifier = Modifier.padding(vertical = 8.dp),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.SemiBold
-            )
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(20.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text(
+                    text = if (isSignUp) "Sign Up" else "Sign In",
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
         
         Spacer(modifier = Modifier.height(16.dp))
@@ -609,15 +681,19 @@ fun AuthModalContent(
         // Continue with Google Button
         OutlinedButton(
             onClick = {
-                // TODO: Implement Google Sign-In
+                // Google Sign-In requires Activity context
+                // Will be implemented in AuthScreen
             },
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(12.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .alpha(0.5f),
+            shape = RoundedCornerShape(12.dp),
+            enabled = false
         ) {
             Text(
-                text = "Continue with Google",
+                text = "Continue with Google (Use Auth Screen)",
                 modifier = Modifier.padding(vertical = 8.dp),
-                fontSize = 16.sp
+                fontSize = 14.sp
             )
         }
         
@@ -630,8 +706,14 @@ fun AuthModalContent(
         ) {
             TextButton(
                 onClick = {
-                    // TODO: Implement forgot password
-                }
+                    if (email.isNotBlank()) {
+                        authViewModel.sendPasswordResetEmail(email)
+                        errorMessage = "Password reset email sent to $email"
+                    } else {
+                        errorMessage = "Enter your email first"
+                    }
+                },
+                enabled = !isLoading
             ) {
                 Text(
                     text = "Forgot password?",
