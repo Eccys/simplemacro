@@ -166,6 +166,12 @@ fun SimpleMacroApp(
                     navController.navigate(Screen.Auth.route) {
                         popUpTo(0) { inclusive = true }
                     }
+                },
+                onAuthSuccess = { newUserId ->
+                    // User successfully signed up/in - navigate to home with new user ID
+                    navController.navigate(Screen.Home.createRoute(newUserId)) {
+                        popUpTo(Screen.Settings.route) { inclusive = true }
+                    }
                 }
             )
         }
