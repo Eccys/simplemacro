@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "95957598351",
+    "project_id": "simplemacro-ecys",
+    "storage_bucket": "simplemacro-ecys.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:95957598351:android:324e396ddd62e08c24f0fa",
+        "android_client_info": {
+          "package_name": "xyz.ecys.simplemacro"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "95957598351-219do6k4fj84s0f9plr7l8st9larvgk2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "xyz.ecys.simplemacro",
+            "certificate_hash": "d1cec26448a539b320d0352f130f9c36c84a207b"
+          }
+        },
+        {
+          "client_id": "95957598351-6oq9fhvd7ogva7nd3i2mtsj1b73m0som.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkMFwu2-zlfA4L3j3bBiCrDyhlHPb8nVk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "95957598351-6oq9fhvd7ogva7nd3i2mtsj1b73m0som.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
