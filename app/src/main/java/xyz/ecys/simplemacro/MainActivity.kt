@@ -97,7 +97,7 @@ fun SimpleMacroApp(
             val userId = backStackEntry.arguments?.getLong("userId") ?: return@composable
             
             OnboardingScreen(
-                onComplete = { age, weightLbs, heightFeet, heightInches, gender, calorieGoal, carbGoal, proteinGoal, fatGoal ->
+                onComplete = { name, age, weightLbs, heightFeet, heightInches, gender, calorieGoal, carbGoal, proteinGoal, fatGoal ->
                     // Convert imperial to metric
                     val weightKg = weightLbs?.let { it / 2.20462f }
                     val heightCm = if (heightFeet != null && heightInches != null) {
@@ -107,7 +107,7 @@ fun SimpleMacroApp(
                     // Update user profile
                     settingsViewModel.loadUser(userId)
                     settingsViewModel.updateProfile(
-                        name = "",
+                        name = name ?: "",
                         age = age,
                         weight = weightKg,
                         height = heightCm,

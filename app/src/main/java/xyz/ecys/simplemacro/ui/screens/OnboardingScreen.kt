@@ -19,9 +19,10 @@ import androidx.compose.ui.unit.sp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnboardingScreen(
-    onComplete: (age: Int?, weightLbs: Float?, heightFeet: Int?, heightInches: Int?, gender: String?, calorieGoal: Int, carbGoal: Int, proteinGoal: Int, fatGoal: Int) -> Unit,
+    onComplete: (name: String?, age: Int?, weightLbs: Float?, heightFeet: Int?, heightInches: Int?, gender: String?, calorieGoal: Int, carbGoal: Int, proteinGoal: Int, fatGoal: Int) -> Unit,
     onSkip: () -> Unit
 ) {
+    var name by remember { mutableStateOf("") }
     var age by remember { mutableStateOf("") }
     var weightLbs by remember { mutableStateOf("") }
     var heightFeet by remember { mutableStateOf("") }
@@ -82,6 +83,16 @@ fun OnboardingScreen(
                     )
 
                     OutlinedTextField(
+                        value = name,
+                        onValueChange = { name = it },
+                        label = { Text("Name") },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    OutlinedTextField(
                         value = age,
                         onValueChange = { age = it },
                         label = { Text("Age") },
@@ -107,14 +118,28 @@ fun OnboardingScreen(
                         FilterChip(
                             selected = selectedGender == "Male",
                             onClick = { selectedGender = "Male" },
-                            label = { Text("Male") },
-                            modifier = Modifier.weight(1f)
+                            label = { 
+                                Text(
+                                    "Male",
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                ) 
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp)
                         )
                         FilterChip(
                             selected = selectedGender == "Female",
                             onClick = { selectedGender = "Female" },
-                            label = { Text("Female") },
-                            modifier = Modifier.weight(1f)
+                            label = { 
+                                Text(
+                                    "Female",
+                                    modifier = Modifier.padding(vertical = 8.dp)
+                                ) 
+                            },
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(56.dp)
                         )
                     }
 
@@ -225,6 +250,7 @@ fun OnboardingScreen(
                         fatGoal.toIntOrNull() ?: 65
                     )
                     onComplete(
+                        name.takeIf { it.isNotBlank() },
                         age.toIntOrNull(),
                         weightLbs.toFloatOrNull(),
                         heightFeet.toIntOrNull(),

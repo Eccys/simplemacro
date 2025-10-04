@@ -119,14 +119,28 @@ fun AuthScreen(
                 FilterChip(
                     selected = selectedGender == "Male",
                     onClick = { selectedGender = "Male" },
-                    label = { Text("Male") },
-                    modifier = Modifier.weight(1f)
+                    label = { 
+                        Text(
+                            "Male",
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        ) 
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp)
                 )
                 FilterChip(
                     selected = selectedGender == "Female",
                     onClick = { selectedGender = "Female" },
-                    label = { Text("Female") },
-                    modifier = Modifier.weight(1f)
+                    label = { 
+                        Text(
+                            "Female",
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        ) 
+                    },
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(56.dp)
                 )
             }
             
