@@ -34,17 +34,37 @@ val isVerified = firebaseAuth.isEmailVerified()
 
 ### 4. ⏳ Enable Firebase App Check
 **Status:** TODO  
+**Important:** Firebase App Check requires **SHA-256** fingerprints!
+
+**Your Debug Fingerprints (from `./gradlew signingReport`):**
+- **SHA-1:** `D1:CE:C2:64:48:A5:39:B3:20:D0:35:2F:13:0F:9C:36:C8:4A:20:7B`
+- **SHA-256:** `45:9F:C0:82:1B:D0:44:BC:DA:24:37:E9:22:05:57:5B:B9:D5:F0:40:2B:1F:2A:73:6F:11:5A:F2:BE:FC:61:44`
+
 **Steps:**
-1. Go to [Firebase Console - App Check](https://console.firebase.google.com/project/simplemacro-ecys/appcheck)
-2. Click **Register** for your Android app
-3. Choose **Play Integrity** provider
-4. Click **Save**
-5. Add dependency to `app/build.gradle.kts`:
+1. **Add SHA fingerprints to Firebase:**
+   - Go to [Project Settings](https://console.firebase.google.com/project/simplemacro-ecys/settings/general)
+   - Under **Your apps** → Android app
+   - Click **Add fingerprint**
+   - Add **both SHA-1 and SHA-256** (Debug version above)
+   - Later add release fingerprints when you create release keystore
+
+2. **Enable App Check:**
+   - Go to [Firebase Console - App Check](https://console.firebase.google.com/project/simplemacro-ecys/appcheck)
+   - Click **Register** for your Android app
+   - Choose **Play Integrity** provider (for production)
+   - For debugging, also enable **Debug provider**
+   - Click **Save**
+
+3. **Add dependency to `app/build.gradle.kts`:**
 ```kotlin
 implementation("com.google.firebase:firebase-appcheck-playintegrity")
 ```
-6. Initialize in `SimpleMacroApplication.kt`:
+
+4. **Initialize in `SimpleMacroApplication.kt`:**
 ```kotlin
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
+
 val firebaseAppCheck = FirebaseAppCheck.getInstance()
 firebaseAppCheck.installAppCheckProviderFactory(
     PlayIntegrityAppCheckProviderFactory.getInstance()
@@ -63,7 +83,7 @@ firebaseAppCheck.installAppCheckProviderFactory(
 
 **Note:** reCAPTCHA is now enabled since we removed the testing flag.
 
-### 6. ⏳ Add release keystore SHA-1 to Firebase
+### 6. ⏳ Add release keystore SHA-1 & SHA-256 to Firebase
 **Status:** TODO  
 **Steps:**
 
@@ -73,19 +93,26 @@ cd /home/ecys/git/simplemacro
 keytool -genkey -v -keystore release-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias simplemacro
 ```
 
-**Get SHA-1 from Release Keystore:**
+**Get SHA-1 and SHA-256 from Release Keystore:**
 ```bash
 keytool -list -v -keystore release-keystore.jks -alias simplemacro
 ```
+This will output both SHA-1 and SHA-256 fingerprints.
 
 **Add to Firebase:**
-1. Copy the SHA-1 fingerprint
+1. Copy **both SHA-1 and SHA-256** fingerprints from the output
 2. Go to [Project Settings](https://console.firebase.google.com/project/simplemacro-ecys/settings/general)
 3. Under **Your apps** → Android app
 4. Click **Add fingerprint**
-5. Paste SHA-1 for **release**
-6. Click **Save**
-7. Download updated `google-services.json`
+5. Add SHA-1 for **release**
+6. Click **Add fingerprint** again
+7. Add SHA-256 for **release**
+8. Click **Save**
+9. Download updated `google-services.json`
+
+**Why both?**
+- **SHA-1**: Required for Google Sign-In
+- **SHA-256**: Required for Firebase App Check (Play Integrity)
 
 **Update build.gradle.kts:**
 ```kotlin
