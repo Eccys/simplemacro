@@ -133,18 +133,62 @@ fun HomeScreenNew(
                         )
                     }
 
-                    FilledIconButton(
-                        onClick = { showCalendar = true },
-                        modifier = Modifier.size(56.dp),
-                        colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer
-                        )
+                    // BMI Indicator
+                    val weight = uiState.user?.weight // in kg
+                    val height = uiState.user?.height // in cm
+                    val bmi = if (weight != null && height != null && height > 0) {
+                        weight / ((height / 100) * (height / 100))
+                    } else null
+                    
+                    val bmiColor = when {
+                        bmi == null -> MaterialTheme.colorScheme.surfaceVariant
+                        bmi < 18.5 -> Color(0xFF3B82F6) // Blue - Underweight
+                        bmi < 25.0 -> Color(0xFF10B981) // Green - Normal
+                        bmi < 30.0 -> Color(0xFFF59E0B) // Orange - Overweight
+                        else -> Color(0xFFEF4444) // Red - Obese
+                    }
+                    
+                    val bmiCategory = when {
+                        bmi == null -> "No data"
+                        bmi < 18.5 -> "Under"
+                        bmi < 25.0 -> "Normal"
+                        bmi < 30.0 -> "Over"
+                        else -> "Obese"
+                    }
+                    
+                    ElevatedCard(
+                        modifier = Modifier.size(90.dp, 70.dp),
+                        colors = CardDefaults.elevatedCardColors(
+                            containerColor = bmiColor.copy(alpha = 0.15f)
+                        ),
+                        shape = RoundedCornerShape(16.dp)
                     ) {
-                        Icon(
-                            Icons.Default.CalendarMonth,
-                            contentDescription = "View Calendar",
-                            modifier = Modifier.size(32.dp)
-                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(8.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            Text(
+                                text = "BMI",
+                                fontSize = 11.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Text(
+                                text = bmi?.let { String.format("%.1f", it) } ?: "--",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = bmiColor
+                            )
+                            Text(
+                                text = bmiCategory,
+                                fontSize = 9.sp,
+                                color = bmiColor,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
                 }
             }
