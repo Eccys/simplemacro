@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SimpleMacro</string>
+    <!-- This will be auto-generated from google-services.json when Firebase is configured -->
+    <!-- For now, you can find your Web Client ID in Firebase Console: -->
+    <!-- https://console.firebase.google.com/project/simplemacro-ecys/authentication/providers -->
+    <!-- Go to Google Sign-In, click Web SDK configuration, copy the Web client ID -->
+    <string name="default_web_client_id" translatable="false">95957598351-6oq9fhvd7ogva7nd3i2mtsj1b73m0som.apps.googleusercontent.com</string>
+</resources>
