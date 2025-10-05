@@ -229,7 +229,7 @@ fun AuthScreen(
             )
         }
 
-        Button(
+        OutlinedButton(
             onClick = {
                 if (isLoginMode) {
                     viewModel.loginWithEmail(email, password)
@@ -253,37 +253,38 @@ fun AuthScreen(
                     )
                 }
             },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = authState !is AuthState.Loading
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            enabled = authState !is AuthState.Loading,
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ),
+            border = androidx.compose.foundation.BorderStroke(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline
+            ),
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
         ) {
             if (authState is AuthState.Loading) {
                 CircularProgressIndicator(
                     modifier = Modifier.size(24.dp),
-                    color = MaterialTheme.colorScheme.onPrimary
+                    color = MaterialTheme.colorScheme.onSurface
                 )
             } else {
-                Text(if (isLoginMode) "Log In" else "Sign Up")
+                Text(
+                    text = if (isLoginMode) "Log In" else "Sign Up",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-        TextButton(
-            onClick = { 
-                isLoginMode = !isLoginMode
-                viewModel.resetAuthState()
-            }
-        ) {
-            Text(
-                if (isLoginMode) "Don't have an account? Sign Up" 
-                else "Already have an account? Log In"
-            )
-        }
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Official Google Sign-In Button
-        OutlinedButton(
+        // Google Sign-In Button
+        Button(
             onClick = {
                 val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                     .requestIdToken(context.getString(R.string.default_web_client_id))
@@ -296,29 +297,27 @@ fun AuthScreen(
                 .fillMaxWidth()
                 .height(48.dp),
             enabled = authState !is AuthState.Loading,
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            border = ButtonDefaults.outlinedButtonBorder.copy(
-                width = 1.dp,
-                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline)
-            ),
-            elevation = ButtonDefaults.buttonElevation(
-                defaultElevation = 1.dp,
-                pressedElevation = 2.dp
-            )
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
         ) {
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Continue with Google",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Medium
-                )
+            Text(
+                text = "Continue with Google",
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Medium
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextButton(
+            onClick = { 
+                isLoginMode = !isLoginMode
+                viewModel.resetAuthState()
             }
+        ) {
+            Text(
+                if (isLoginMode) "Don't have an account? Sign Up" 
+                else "Already have an account? Log In"
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
