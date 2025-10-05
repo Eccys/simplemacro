@@ -9,6 +9,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -50,6 +51,7 @@ fun AuthScreen(
             }
         }
     }
+    var showEmailAuth by remember { mutableStateOf(false) }
     var isLoginMode by remember { mutableStateOf(true) }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -75,22 +77,168 @@ fun AuthScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text(
-            text = "SimpleMacro",
-            fontSize = 36.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
+        if (!showEmailAuth) {
+            // Main auth selection screen
+            Text(
+                text = "SimpleMacro",
+                fontSize = 36.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
 
-        Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        Text(
-            text = "Track what you eat.",
-            fontSize = 16.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+            Text(
+                text = "Track what you eat.",
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
 
-        Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(48.dp))
+
+            // Continue with Google
+            OutlinedButton(
+                onClick = {
+                    val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(context.getString(R.string.default_web_client_id))
+                        .requestEmail()
+                        .build()
+                    val googleSignInClient = GoogleSignIn.getClient(context, gso)
+                    googleSignInLauncher.launch(googleSignInClient.signInIntent)
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = authState !is AuthState.Loading,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                border = androidx.compose.foundation.BorderStroke(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.outline
+                ),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Google G logo placeholder - you can replace with actual icon
+                    Text(
+                        text = "G",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(end = 12.dp)
+                    )
+                    Text(
+                        text = "Continue with Google",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Continue with Email
+            Button(
+                onClick = { showEmailAuth = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = authState !is AuthState.Loading,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Email,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(end = 0.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "Continue with Email",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Continue as Guest
+            Button(
+                onClick = { viewModel.continueAsGuest() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                enabled = authState !is AuthState.Loading,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    contentColor = MaterialTheme.colorScheme.onSurfaceVariant
+                ),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Start,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.AccountCircle,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(24.dp)
+                            .padding(end = 0.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Text(
+                        text = "Continue as Guest",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+
+            if (authState is AuthState.Error) {
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = (authState as AuthState.Error).message,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 14.sp
+                )
+            }
+        } else {
+            // Email auth screen
+            Text(
+                text = "SimpleMacro",
+                fontSize = 36.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Track what you eat.",
+                fontSize = 16.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Spacer(modifier = Modifier.height(48.dp))
 
         if (!isLoginMode) {
             OutlinedTextField(
@@ -219,119 +367,84 @@ fun AuthScreen(
             singleLine = true
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-        if (authState is AuthState.Error) {
-            Text(
-                text = (authState as AuthState.Error).message,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
-        }
+            if (authState is AuthState.Error) {
+                Text(
+                    text = (authState as AuthState.Error).message,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(bottom = 16.dp)
+                )
+            }
 
-        OutlinedButton(
-            onClick = {
-                if (isLoginMode) {
-                    viewModel.loginWithEmail(email, password)
-                } else {
-                    // Convert imperial to metric for storage
-                    val weightKg = weightLbs.toFloatOrNull()?.let { it / 2.20462f }
-                    val heightCm = heightFeet.toIntOrNull()?.let { feet ->
-                        val inches = heightInches.toIntOrNull() ?: 0
-                        ((feet * 12 + inches) * 2.54).toFloat()
+            Button(
+                onClick = {
+                    if (isLoginMode) {
+                        viewModel.loginWithEmail(email, password)
+                    } else {
+                        // Convert imperial to metric for storage
+                        val weightKg = weightLbs.toFloatOrNull()?.let { it / 2.20462f }
+                        val heightCm = heightFeet.toIntOrNull()?.let { feet ->
+                            val inches = heightInches.toIntOrNull() ?: 0
+                            ((feet * 12 + inches) * 2.54).toFloat()
+                        }
+                        
+                        viewModel.signUpWithEmail(
+                            email = email,
+                            password = password,
+                            username = username,
+                            name = "",
+                            age = age.toIntOrNull(),
+                            weight = weightKg,
+                            height = heightCm,
+                            gender = selectedGender.takeIf { it.isNotBlank() }
+                        )
                     }
-                    
-                    viewModel.signUpWithEmail(
-                        email = email,
-                        password = password,
-                        username = username,
-                        name = "",
-                        age = age.toIntOrNull(),
-                        weight = weightKg,
-                        height = heightCm,
-                        gender = selectedGender.takeIf { it.isNotBlank() }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp),
+                enabled = authState !is AuthState.Loading,
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
+            ) {
+                if (authState is AuthState.Loading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(24.dp),
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                } else {
+                    Text(
+                        text = if (isLoginMode) "Log In" else "Sign Up",
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            enabled = authState !is AuthState.Loading,
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = MaterialTheme.colorScheme.surface,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            border = androidx.compose.foundation.BorderStroke(
-                width = 1.dp,
-                color = MaterialTheme.colorScheme.outline
-            ),
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
-        ) {
-            if (authState is AuthState.Loading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(24.dp),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            } else {
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            TextButton(
+                onClick = { 
+                    isLoginMode = !isLoginMode
+                    viewModel.resetAuthState()
+                }
+            ) {
                 Text(
-                    text = if (isLoginMode) "Log In" else "Sign Up",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Medium
+                    if (isLoginMode) "Don't have an account? Sign Up" 
+                    else "Already have an account? Log In"
                 )
             }
-        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-        // Google Sign-In Button
-        Button(
-            onClick = {
-                val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(context.getString(R.string.default_web_client_id))
-                    .requestEmail()
-                    .build()
-                val googleSignInClient = GoogleSignIn.getClient(context, gso)
-                googleSignInLauncher.launch(googleSignInClient.signInIntent)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(48.dp),
-            enabled = authState !is AuthState.Loading,
-            shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
-        ) {
-            Text(
-                text = "Continue with Google",
-                fontSize = 15.sp,
-                fontWeight = FontWeight.Medium
-            )
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        TextButton(
-            onClick = { 
-                isLoginMode = !isLoginMode
-                viewModel.resetAuthState()
+            TextButton(
+                onClick = { 
+                    showEmailAuth = false
+                    viewModel.resetAuthState()
+                }
+            ) {
+                Text("← Back to options")
             }
-        ) {
-            Text(
-                if (isLoginMode) "Don't have an account? Sign Up" 
-                else "Already have an account? Log In"
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Guest Mode - Text Link Style
-        TextButton(
-            onClick = { viewModel.continueAsGuest() },
-            enabled = authState !is AuthState.Loading
-        ) {
-            Text(
-                text = "Continue as Guest",
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 14.sp
-            )
         }
     }
 }
