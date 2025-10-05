@@ -1,21 +1,28 @@
 # SimpleMacro
 
-Track what you eat.
+<p align="center">
+  <img src="simplemacro.png" alt="SimpleMacro Logo" width="200"/>
+</p>
+
+<p align="center">
+  <strong>Track what you eat. See your progress. Hit your goals.</strong>
+</p>
 
 ## What It Does
 
-SimpleMacro helps you track your daily food intake. You enter what you eat and the app shows your progress visually with graphs.
+SimpleMacro helps you track your daily food intake. You enter what you eat and the app shows your progress.
 
 ### Track Your Food
 - Add meals and snacks
 - Log calories, carbs, protein, and fat
 - See your daily totals
-- View your BMI and body fat using the Jackson-Pollock method
+- View your BMI and body fat
 
 ### Set Your Goals
-- Pick your daily calorie target and macro goals (carbs, protein, fat)
+- Pick your daily calorie target
+- Set macro goals (carbs, protein, fat)
 - Track your weight and height
-- Input your measurements for a body fat percentage calculation
+- Use the body fat calculator
 
 ### Stay On Track
 - See progress bars for each goal
