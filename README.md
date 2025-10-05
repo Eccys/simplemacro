@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <strong>Track what you eat. See your progress. Hit your goals.</strong>
+  <strong>Track what you eat.
 </p>
 
 ## What It Does
