@@ -97,7 +97,7 @@ fun AuthScreen(
             Spacer(modifier = Modifier.height(48.dp))
 
             // Continue with Google
-            OutlinedButton(
+            Button(
                 onClick = {
                     val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                         .requestIdToken(context.getString(R.string.default_web_client_id))
@@ -110,13 +110,13 @@ fun AuthScreen(
                     .fillMaxWidth()
                     .height(56.dp),
                 enabled = authState !is AuthState.Loading,
-                colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = MaterialTheme.colorScheme.surface,
-                    contentColor = MaterialTheme.colorScheme.onSurface
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = androidx.compose.ui.graphics.Color.White,
+                    contentColor = androidx.compose.ui.graphics.Color.Black
                 ),
-                border = androidx.compose.foundation.BorderStroke(
-                    width = 1.dp,
-                    color = MaterialTheme.colorScheme.outline
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = 2.dp,
+                    pressedElevation = 4.dp
                 ),
                 shape = androidx.compose.foundation.shape.RoundedCornerShape(8.dp)
             ) {
@@ -130,13 +130,14 @@ fun AuthScreen(
                         text = "G",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.primary,
+                        color = androidx.compose.ui.graphics.Color(0xFF4285F4), // Google blue
                         modifier = Modifier.padding(end = 12.dp)
                     )
                     Text(
                         text = "Continue with Google",
                         fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium
+                        fontWeight = FontWeight.Medium,
+                        color = androidx.compose.ui.graphics.Color.Black
                     )
                 }
             }
