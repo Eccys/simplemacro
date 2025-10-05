@@ -85,7 +85,7 @@ fun AuthScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Track your macros effortlessly",
+            text = "Track what you eat.",
             fontSize = 16.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -280,7 +280,9 @@ fun AuthScreen(
             )
         }
 
-        // Google Sign-In Button
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Official Google Sign-In Button
         OutlinedButton(
             onClick = {
                 val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -290,20 +292,47 @@ fun AuthScreen(
                 val googleSignInClient = GoogleSignIn.getClient(context, gso)
                 googleSignInLauncher.launch(googleSignInClient.signInIntent)
             },
-            modifier = Modifier.fillMaxWidth(),
-            enabled = authState !is AuthState.Loading
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            enabled = authState !is AuthState.Loading,
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ),
+            border = ButtonDefaults.outlinedButtonBorder.copy(
+                width = 1.dp,
+                brush = androidx.compose.ui.graphics.SolidColor(MaterialTheme.colorScheme.outline)
+            ),
+            elevation = ButtonDefaults.buttonElevation(
+                defaultElevation = 1.dp,
+                pressedElevation = 2.dp
+            )
         ) {
-            Text("Continue with Google")
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Continue with Google",
+                    fontSize = 15.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        Spacer(modifier = Modifier.height(24.dp))
 
-        OutlinedButton(
+        // Guest Mode - Text Link Style
+        TextButton(
             onClick = { viewModel.continueAsGuest() },
-            modifier = Modifier.fillMaxWidth(),
             enabled = authState !is AuthState.Loading
         ) {
-            Text("Continue as Guest")
+            Text(
+                text = "Continue as Guest",
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontSize = 14.sp
+            )
         }
     }
 }
