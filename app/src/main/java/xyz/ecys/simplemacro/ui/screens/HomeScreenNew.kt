@@ -157,36 +157,38 @@ fun HomeScreenNew(
                     }
                     
                     ElevatedCard(
-                        modifier = Modifier.size(90.dp, 70.dp),
+                        modifier = Modifier.size(110.dp, 90.dp),
                         colors = CardDefaults.elevatedCardColors(
                             containerColor = bmiColor.copy(alpha = 0.15f)
                         ),
-                        shape = RoundedCornerShape(16.dp)
+                        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 4.dp),
+                        shape = RoundedCornerShape(20.dp)
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(8.dp),
+                                .padding(12.dp),
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
                             Text(
                                 text = "BMI",
-                                fontSize = 11.sp,
+                                fontSize = 13.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = FontWeight.Medium
+                                fontWeight = FontWeight.SemiBold
                             )
+                            Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = bmi?.let { String.format("%.1f", it) } ?: "--",
-                                fontSize = 20.sp,
+                                fontSize = 28.sp,
                                 fontWeight = FontWeight.Bold,
                                 color = bmiColor
                             )
                             Text(
                                 text = bmiCategory,
-                                fontSize = 9.sp,
+                                fontSize = 11.sp,
                                 color = bmiColor,
-                                fontWeight = FontWeight.Medium
+                                fontWeight = FontWeight.SemiBold
                             )
                         }
                     }
