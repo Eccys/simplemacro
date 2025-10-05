@@ -3,6 +3,7 @@ package xyz.ecys.simplemacro.ui.screens
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -14,6 +15,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -125,14 +130,61 @@ fun AuthScreen(
                     horizontalArrangement = Arrangement.Start,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Google G logo placeholder - you can replace with actual icon
-                    Text(
-                        text = "G",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = androidx.compose.ui.graphics.Color(0xFF4285F4), // Google blue
-                        modifier = Modifier.padding(end = 12.dp)
-                    )
+                    // Official Google G logo colors
+                    Canvas(
+                        modifier = Modifier
+                            .size(20.dp)
+                            .padding(end = 0.dp)
+                    ) {
+                        val width = size.width
+                        val height = size.height
+                        val strokeWidth = width * 0.15f
+                        
+                        // Blue (top right arc)
+                        drawArc(
+                            color = androidx.compose.ui.graphics.Color(0xFF4285F4),
+                            startAngle = -90f,
+                            sweepAngle = 135f,
+                            useCenter = false,
+                            style = Stroke(width = strokeWidth)
+                        )
+                        
+                        // Red (top left arc)
+                        drawArc(
+                            color = androidx.compose.ui.graphics.Color(0xFFEA4335),
+                            startAngle = 45f,
+                            sweepAngle = 135f,
+                            useCenter = false,
+                            style = Stroke(width = strokeWidth)
+                        )
+                        
+                        // Yellow (bottom left arc)
+                        drawArc(
+                            color = androidx.compose.ui.graphics.Color(0xFFFBBC05),
+                            startAngle = 180f,
+                            sweepAngle = 135f,
+                            useCenter = false,
+                            style = Stroke(width = strokeWidth)
+                        )
+                        
+                        // Green (bottom right arc + bar)
+                        drawArc(
+                            color = androidx.compose.ui.graphics.Color(0xFF34A853),
+                            startAngle = -45f,
+                            sweepAngle = 90f,
+                            useCenter = false,
+                            style = Stroke(width = strokeWidth)
+                        )
+                        
+                        // Green horizontal bar
+                        drawLine(
+                            color = androidx.compose.ui.graphics.Color(0xFF34A853),
+                            start = Offset(width / 2, height / 2),
+                            end = Offset(width - strokeWidth / 2, height / 2),
+                            strokeWidth = strokeWidth
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "Continue with Google",
                         fontSize = 16.sp,
