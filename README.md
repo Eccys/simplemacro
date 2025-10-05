@@ -81,7 +81,7 @@ You need a `google-services.json` file. Get it from the Firebase Console. Put it
 - **Jetpack Compose** for the UI
 - **Room Database** to save data
 - **Firebase** for accounts and sync
-- **Material Design 3** for the look
+- **Material Design 3** for aesthetics
 
 ## Project Layout
 
@@ -111,8 +111,8 @@ app/
 
 ## License
 
-MIT License. You can use this code freely.
+MIT License.
 
 ## Help Out
 
-Want to add a feature? Found a bug? Pull requests are welcome.
+Pull requests are welcome.
