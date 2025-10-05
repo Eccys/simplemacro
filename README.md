@@ -1,4 +1,4 @@
-# SimpleMacro
+<h1 align="center">SimpleMacro</h1>
 
 <p align="center">
   <img src="simplemacro.png" alt="SimpleMacro Logo" width="200"/>
@@ -10,19 +10,18 @@
 
 ## What It Does
 
-SimpleMacro helps you track your daily food intake. You enter what you eat and the app shows your progress.
+SimpleMacro helps you track your daily food intake. You enter what you eat and the app shows your progress visually with graphs.
 
 ### Track Your Food
 - Add meals and snacks
 - Log calories, carbs, protein, and fat
 - See your daily totals
-- View your BMI and body fat
+- View your BMI and body fat using the Jackson-Pollock method
 
 ### Set Your Goals
-- Pick your daily calorie target
-- Set macro goals (carbs, protein, fat)
+- Pick your daily calorie target and macro goals (carbs, protein, fat)
 - Track your weight and height
-- Use the body fat calculator
+- Input your measurements for a body fat percentage calculation
 
 ### Stay On Track
 - See progress bars for each goal
@@ -88,7 +87,7 @@ You need a `google-services.json` file. Get it from the Firebase Console. Put it
 - **Jetpack Compose** for the UI
 - **Room Database** to save data
 - **Firebase** for accounts and sync
-- **Material Design 3** for aesthetics
+- **Material Design 3** for the look
 
 ## Project Layout
 
@@ -118,8 +117,8 @@ app/
 
 ## License
 
-MIT License.
+MIT License. You can use this code freely.
 
 ## Help Out
 
-Pull requests are welcome.
+Want to add a feature? Found a bug? Pull requests are welcome.
