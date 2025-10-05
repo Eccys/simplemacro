@@ -51,8 +51,7 @@ render.experimental.xml
 .cxx/
 
 # Google Services (e.g. APIs or Firebase)
-# Uncomment this if you use a real google-services.json
-# google-services.json
+google-services.json
 
 # Freeline
 freeline.py

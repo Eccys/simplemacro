@@ -177,7 +177,11 @@ fun OnboardingScreen(
                     ) {
                         OutlinedTextField(
                             value = heightFeet,
-                            onValueChange = { heightFeet = it },
+                            onValueChange = { newValue ->
+                                if (newValue.isEmpty() || newValue.all { it.isDigit() }) {
+                                    heightFeet = newValue
+                                }
+                            },
                             label = { Text("Feet") },
                             modifier = Modifier.weight(1f),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
