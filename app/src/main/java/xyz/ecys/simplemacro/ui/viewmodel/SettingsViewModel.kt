@@ -2,10 +2,12 @@ package xyz.ecys.simplemacro.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import xyz.ecys.simplemacro.data.auth.FirebaseAuthService
 import xyz.ecys.simplemacro.data.model.User
 import xyz.ecys.simplemacro.data.preferences.UserPreferences
 import xyz.ecys.simplemacro.data.repository.MacroRepository
 import xyz.ecys.simplemacro.data.repository.UserRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,14 +23,18 @@ data class SettingsUiState(
 class SettingsViewModel(
     private val userRepository: UserRepository,
     private val macroRepository: MacroRepository,
-    private val userPreferences: UserPreferences
+    private val userPreferences: UserPreferences,
+    private val firebaseAuth: FirebaseAuthService = FirebaseAuthService()
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SettingsUiState())
     val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
 
+    private var loadUserJob: Job? = null
+
     fun loadUser(userId: Long) {
-        viewModelScope.launch {
+        loadUserJob?.cancel()
+        loadUserJob = viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true)
             userRepository.getUserById(userId).collect { user ->
                 _uiState.value = _uiState.value.copy(
@@ -79,7 +85,9 @@ class SettingsViewModel(
     }
 
     fun logout() {
+        loadUserJob?.cancel()
         viewModelScope.launch {
+            firebaseAuth.signOut()
             userPreferences.clearCurrentUserId()
         }
     }
