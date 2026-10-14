@@ -7,6 +7,7 @@ import xyz.ecys.simplemacro.data.model.MacroEntry
 import xyz.ecys.simplemacro.data.model.User
 import xyz.ecys.simplemacro.data.repository.MacroRepository
 import xyz.ecys.simplemacro.data.repository.UserRepository
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.LocalDate
@@ -32,20 +33,24 @@ class HomeViewModel(
     private val _selectedDate = MutableStateFlow(LocalDate.now())
     val selectedDate: StateFlow<LocalDate> = _selectedDate.asStateFlow()
 
+    private var loadDataJob: Job? = null
+
     fun loadUserData(userId: Long) {
-        viewModelScope.launch {
+        loadDataJob?.cancel()
+        val targetDate = _selectedDate.value
+        loadDataJob = viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
             
             userRepository.getUserById(userId)
                 .combine(
                     macroRepository.getDailyMacros(
                         userId,
-                        _selectedDate.value.format(DateTimeFormatter.ISO_DATE)
+                        targetDate.format(DateTimeFormatter.ISO_DATE)
                     )
                 ) { user, dailyMacros ->
                     HomeUiState(
                         user = user,
-                        currentDate = _selectedDate.value,
+                        currentDate = targetDate,
                         dailyMacros = dailyMacros,
                         isLoading = false
                     )
