@@ -98,22 +98,25 @@ fun SimpleMacroApp(
             
             OnboardingScreen(
                 onComplete = { name, age, weightLbs, heightFeet, heightInches, gender, calorieGoal, carbGoal, proteinGoal, fatGoal ->
-                    // Convert imperial to metric
+                    // Convert imperial to metric (defaulting inches to 0 when feet is entered)
                     val weightKg = weightLbs?.let { it / 2.20462f }
-                    val heightCm = if (heightFeet != null && heightInches != null) {
-                        ((heightFeet * 12 + heightInches) * 2.54).toFloat()
-                    } else null
+                    val heightCm = heightFeet?.let { feet ->
+                        ((feet * 12 + (heightInches ?: 0)) * 2.54).toFloat()
+                    }
                     
-                    // Update user profile
-                    settingsViewModel.loadUser(userId)
-                    settingsViewModel.updateProfile(
+                    // Atomically persist user profile and macro goals
+                    settingsViewModel.completeOnboarding(
+                        userId = userId,
                         name = name ?: "",
                         age = age,
                         weight = weightKg,
                         height = heightCm,
-                        gender = gender
+                        gender = gender,
+                        calorieGoal = calorieGoal,
+                        carbGoal = carbGoal,
+                        proteinGoal = proteinGoal,
+                        fatGoal = fatGoal
                     )
-                    settingsViewModel.updateMacroGoals(calorieGoal, carbGoal, proteinGoal, fatGoal)
                     
                     // Navigate to home
                     navController.navigate(Screen.Home.createRoute(userId)) {

@@ -21,7 +21,7 @@ object InputValidation {
      * @return true if valid decimal number or empty, false otherwise
      */
     fun isValidDecimal(input: String): Boolean {
-        return input.isEmpty() || input.matches(Regex("^\\d*\\.?\\d*$"))
+        return input.isEmpty() || (input != "." && input.matches(Regex("^\\d*\\.?\\d*$")))
     }
     
     /**

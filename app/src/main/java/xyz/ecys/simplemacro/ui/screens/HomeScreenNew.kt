@@ -61,6 +61,9 @@ fun HomeScreenNew(
                     )
                 },
                 actions = {
+                    IconButton(onClick = { showCalendar = true }) {
+                        Icon(Icons.Default.DateRange, contentDescription = "Select Date")
+                    }
                     IconButton(onClick = onSettingsClick) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings")
                     }
@@ -121,7 +124,7 @@ fun HomeScreenNew(
                             color = MaterialTheme.colorScheme.primary
                         )
                         Text(
-                            text = LocalDate.now().format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")),
+                            text = uiState.currentDate.format(DateTimeFormatter.ofPattern("MMMM dd, yyyy")),
                             fontSize = 12.sp,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
