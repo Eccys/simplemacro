@@ -448,11 +448,17 @@ fun SettingsScreenFixed(
                     val thigh = thighMm.toFloatOrNull()
                     val userAge = age.toIntOrNull()
 
-                    if (chest != null && abdomen != null && thigh != null && userAge != null) {
+                    if (chest != null && abdomen != null && thigh != null && userAge != null &&
+                        chest > 0f && abdomen > 0f && thigh > 0f && userAge > 0
+                    ) {
                         val sum = chest + abdomen + thigh
-                        // Jackson-Pollock 3-site formula for men
-                        val bodyDensity = 1.10938 - (0.0008267 * sum) + (0.0000016 * sum * sum) - (0.0002574 * userAge)
-                        val bodyFatPercent = (495 / bodyDensity) - 450
+                        // Jackson-Pollock 3-site formula (gender-aware)
+                        val bodyDensity = if (selectedGender.equals("Female", ignoreCase = true)) {
+                            1.0994921 - (0.0009929 * sum) + (0.0000023 * sum * sum) - (0.0001392 * userAge)
+                        } else {
+                            1.10938 - (0.0008267 * sum) + (0.0000016 * sum * sum) - (0.0002574 * userAge)
+                        }
+                        val bodyFatPercent = ((495 / bodyDensity) - 450).coerceIn(2.0, 70.0)
 
                         Spacer(modifier = Modifier.height(16.dp))
                         

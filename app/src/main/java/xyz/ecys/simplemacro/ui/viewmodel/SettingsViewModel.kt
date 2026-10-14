@@ -11,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 data class SettingsUiState(
@@ -32,6 +33,17 @@ class SettingsViewModel(
 
     private var loadUserJob: Job? = null
 
+    private suspend fun resolveUser(userId: Long? = null): User? {
+        val current = _uiState.value.user
+        if (userId != null) {
+            if (current != null && current.id == userId) {
+                return current
+            }
+            return userRepository.getUserById(userId).first()
+        }
+        return current
+    }
+
     fun loadUser(userId: Long) {
         loadUserJob?.cancel()
         loadUserJob = viewModelScope.launch {
@@ -47,7 +59,7 @@ class SettingsViewModel(
 
     fun updateUsername(newUsername: String) {
         viewModelScope.launch {
-            val user = _uiState.value.user ?: return@launch
+            val user = resolveUser() ?: return@launch
             
             try {
                 val updatedUser = user.copy(username = newUsername)
@@ -62,9 +74,9 @@ class SettingsViewModel(
         }
     }
 
-    fun updateMacroGoals(calorieGoal: Int, carbGoal: Int, proteinGoal: Int, fatGoal: Int) {
+    fun updateMacroGoals(calorieGoal: Int, carbGoal: Int, proteinGoal: Int, fatGoal: Int, userId: Long? = null) {
         viewModelScope.launch {
-            val user = _uiState.value.user ?: return@launch
+            val user = resolveUser(userId) ?: return@launch
             
             try {
                 val updatedUser = user.copy(
@@ -84,8 +96,48 @@ class SettingsViewModel(
         }
     }
 
+    fun completeOnboarding(
+        userId: Long,
+        name: String,
+        age: Int?,
+        weight: Float?,
+        height: Float?,
+        gender: String?,
+        calorieGoal: Int,
+        carbGoal: Int,
+        proteinGoal: Int,
+        fatGoal: Int
+    ) {
+        viewModelScope.launch {
+            try {
+                val user = resolveUser(userId) ?: return@launch
+                val updatedUser = user.copy(
+                    name = name,
+                    age = age,
+                    weight = weight,
+                    height = height,
+                    gender = gender ?: user.gender,
+                    calorieGoal = calorieGoal,
+                    carbGoal = carbGoal,
+                    proteinGoal = proteinGoal,
+                    fatGoal = fatGoal
+                )
+                userRepository.updateUser(updatedUser)
+                _uiState.value = _uiState.value.copy(
+                    user = updatedUser,
+                    isLoading = false,
+                    isSaved = true
+                )
+                loadUser(userId)
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(error = e.message)
+            }
+        }
+    }
+
     fun logout() {
         loadUserJob?.cancel()
+        _uiState.value = SettingsUiState()
         viewModelScope.launch {
             firebaseAuth.signOut()
             userPreferences.clearCurrentUserId()
@@ -98,7 +150,7 @@ class SettingsViewModel(
     
     fun toggleDarkMode(enabled: Boolean) {
         viewModelScope.launch {
-            val user = _uiState.value.user ?: return@launch
+            val user = resolveUser() ?: return@launch
             try {
                 val updatedUser = user.copy(isDarkMode = enabled)
                 userRepository.updateUser(updatedUser)
@@ -109,9 +161,16 @@ class SettingsViewModel(
         }
     }
     
-    fun updateProfile(name: String, age: Int?, weight: Float?, height: Float?, gender: String? = null) {
+    fun updateProfile(
+        name: String,
+        age: Int?,
+        weight: Float?,
+        height: Float?,
+        gender: String? = null,
+        userId: Long? = null
+    ) {
         viewModelScope.launch {
-            val user = _uiState.value.user ?: return@launch
+            val user = resolveUser(userId) ?: return@launch
             try {
                 val updatedUser = user.copy(
                     name = name,
